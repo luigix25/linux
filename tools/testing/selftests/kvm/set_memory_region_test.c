@@ -52,7 +52,7 @@ static inline uint64_t guest_spin_on_val(uint64_t spin_val)
 static void *vcpu_worker(void *data)
 {
 	struct kvm_vcpu *vcpu = data;
-	struct kvm_run *run = vcpu->run;
+	struct kvm_run *run = vcpu->common->run;
 	struct ucall uc;
 	uint64_t cmd;
 
@@ -304,7 +304,7 @@ static void test_delete_memory_region(bool disable_slot_zap_quirk)
 
 	pthread_join(vcpu_thread, NULL);
 
-	run = vcpu->run;
+	run = vcpu->common->run;
 
 	TEST_ASSERT(run->exit_reason == KVM_EXIT_SHUTDOWN ||
 		    run->exit_reason == KVM_EXIT_INTERNAL_ERROR,
