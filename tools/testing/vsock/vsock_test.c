@@ -23,6 +23,7 @@
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <linux/time64.h>
+#include <pthread.h>
 
 #include "vsock_test_zerocopy.h"
 #include "timeout.h"
@@ -1788,6 +1789,83 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
 	close(fd);
 }
 
+static void* myThreadFun(void* vargp){
+	//Send signal to the other side
+	pid_t *t = (pid_t*)vargp;
+	while(1)
+		kill(*t, SIGUSR1);
+	return NULL;
+}
+
+static void prova(int signal){
+}
+
+static void test_luigi_client(const struct test_opts *opts)
+{
+	pthread_t thread_id;
+
+	if(opts->peer_cid != VMADDR_CID_LOCAL){
+		fprintf(stderr, "Test skipped, luigi not supported.\n");
+		return;
+	}
+
+	signal(SIGUSR1, prova);
+	pid_t pid = getpid();
+
+	pthread_create(&thread_id, NULL, myThreadFun, &pid);
+
+	timeout_begin(TIMEOUT);
+
+	while(1){
+		struct sockaddr_vm sa = {
+			.svm_family = AF_VSOCK,
+			.svm_cid = opts->peer_cid,
+			.svm_port = opts->peer_port,
+		};
+
+		int s = socket(AF_VSOCK, SOCK_STREAM, 0);
+
+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+
+		sa.svm_cid = 0;
+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+
+		close(s);
+
+		if(timeout_check_expired())
+			break;
+	}
+
+	timeout_end();
+
+
+	pthread_cancel(thread_id);
+	//TODO: Restore old signal
+	signal(SIGUSR1, SIG_DFL);
+
+}
+
+static void test_luigi_server(const struct test_opts *opts)
+{
+	if(opts->peer_cid != VMADDR_CID_LOCAL){
+		fprintf(stderr, "Test skipped, luigi not supported.\n");
+		return;
+	}
+
+	timeout_begin(TIMEOUT);
+
+	while(1){
+		int s = vsock_stream_listen(opts->peer_cid, opts->peer_port);
+		close(s);
+
+		if(timeout_check_expired())
+			break;
+	}
+
+	timeout_end();
+
+}
+
 static void test_stream_linger_client(const struct test_opts *opts)
 {
 	struct linger optval = {
@@ -1983,6 +2061,11 @@ static struct test_case test_cases[] = {
 		.name = "SOCK_STREAM SO_LINGER null-ptr-deref",
 		.run_client = test_stream_linger_client,
 		.run_server = test_stream_linger_server,
+	},
+	{
+		.name = "luigi",
+		.run_client = test_luigi_client,
+		.run_server = test_luigi_server,
 	},
 	{},
 };
