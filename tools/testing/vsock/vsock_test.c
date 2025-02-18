@@ -23,6 +23,7 @@
 #include <sys/ioctl.h>
 #include <linux/sockios.h>
 #include <linux/time64.h>
+#include <pthread.h>
 
 #include "vsock_test_zerocopy.h"
 #include "timeout.h"
@@ -1788,6 +1789,95 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
 	close(fd);
 }
 
+static void *test_stream_transport_change_thread(void *vargp)
+{
+	pid_t *t = (pid_t *)vargp;
+
+	/* We want this thread to terminate as soon as possible */
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	while (true) {
+		int ret;
+
+		ret = kill(*t, SIGUSR1);
+		if (ret < 0) {
+			perror("kill");
+			exit(EXIT_FAILURE);
+		}
+	}
+	return NULL;
+}
+
+/* This is required for the test, because we are using a signal to trigger the bug */
+static void test_transport_change_signal_handler(int signal)
+{
+}
+
+static void test_stream_transport_change_client(const struct test_opts *opts)
+{
+	__sighandler_t old_handler;
+	pid_t pid = getpid();
+	pthread_t thread_id;
+	time_t tout;
+	int ret;
+
+	old_handler = signal(SIGUSR1, test_transport_change_signal_handler);
+
+	pthread_create(&thread_id, NULL, test_stream_transport_change_thread, &pid);
+
+	tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+	do {
+		struct sockaddr_vm sa = {
+			.svm_family = AF_VSOCK,
+			.svm_cid = opts->peer_cid,
+			.svm_port = opts->peer_port,
+		};
+		int s;
+
+		s = socket(AF_VSOCK, SOCK_STREAM, 0);
+		if (s < 0) {
+			perror("socket");
+			exit(EXIT_FAILURE);
+		}
+
+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+
+		sa.svm_cid = 0;
+		connect(s, (struct sockaddr *)&sa, sizeof(sa));
+
+		close(s);
+	} while (current_nsec() < tout);
+
+	ret = pthread_cancel(thread_id);
+	if (ret < 0) {
+		perror("pthread_cancel");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Wait for the thread to terminate */
+	ret = pthread_join(thread_id, NULL);
+	if (ret < 0) {
+		perror("pthread_join");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Restore the old handler */
+	signal(SIGUSR1, old_handler);
+}
+
+static void test_stream_transport_change_server(const struct test_opts *opts)
+{
+	time_t tout = current_nsec() + TIMEOUT * NSEC_PER_SEC;
+
+	do {
+		int s;
+
+		s = vsock_stream_listen(opts->peer_cid, opts->peer_port);
+		close(s);
+
+	} while (current_nsec() < tout);
+}
+
 static void test_stream_linger_client(const struct test_opts *opts)
 {
 	struct linger optval = {
@@ -1983,6 +2073,11 @@ static struct test_case test_cases[] = {
 		.name = "SOCK_STREAM SO_LINGER null-ptr-deref",
 		.run_client = test_stream_linger_client,
 		.run_server = test_stream_linger_server,
+	},
+	{
+		.name = "SOCK_STREAM transport change null-ptr-deref",
+		.run_client = test_stream_transport_change_client,
+		.run_server = test_stream_transport_change_server,
 	},
 	{},
 };
