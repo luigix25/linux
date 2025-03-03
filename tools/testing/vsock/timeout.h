@@ -10,6 +10,7 @@ enum {
 void sigalrm(int signo);
 void timeout_begin(unsigned int seconds);
 void timeout_check(const char *operation);
+int  timeout_check_expired();
 void timeout_end(void);
 
 #endif /* TIMEOUT_H */

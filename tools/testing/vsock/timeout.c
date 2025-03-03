@@ -43,6 +43,12 @@ void timeout_begin(unsigned int seconds)
 	alarm(seconds);
 }
 
+int timeout_check_expired()
+{
+	return timeout == true;
+
+}
+
 /* Exit with an error message if the timeout has expired */
 void timeout_check(const char *operation)
 {
