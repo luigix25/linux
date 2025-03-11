@@ -4921,10 +4921,20 @@ void sev_vcpu_after_set_cpuid(struct vcpu_svm *svm)
 static void sev_snp_init_vmcb(struct vcpu_svm *svm)
 {
 	struct kvm_sev_info *sev = &to_kvm_svm(svm->vcpu.kvm)->sev_info;
+	struct kvm_vcpu *vcpu = &svm->vcpu;
 
 	/* V_NMI is not supported when Restricted Injection is enabled */
 	if (sev->vmsa_features[svm->vcpu.vmpl] & SVM_SEV_FEAT_RESTRICTED_INJECTION)
 		svm->vmcb->control.int_ctl &= ~V_NMI_ENABLE_MASK;
+
+	/* Shadow Stack MSRs */
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_U_CET, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_S_CET, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PL0_SSP, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PL1_SSP, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PL2_SSP, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PL3_SSP, 1, 1);
+	set_msr_interception(vcpu, svm->msrpm, MSR_IA32_INT_SSP_TAB, 1, 1);
 }
 
 static void sev_es_init_vmcb(struct vcpu_svm *svm)
