@@ -142,6 +142,15 @@ static const struct svm_direct_access_msrs {
 	{ .index = X2APIC_MSR(APIC_TMICT),		.always = false },
 	{ .index = X2APIC_MSR(APIC_TMCCT),		.always = false },
 	{ .index = X2APIC_MSR(APIC_TDCR),		.always = false },
+
+	/* Shadow Stack MSRs - Not intercepted for SNP guests */
+	{ .index = MSR_IA32_U_CET,			.always = false },
+	{ .index = MSR_IA32_S_CET,			.always = false },
+	{ .index = MSR_IA32_PL0_SSP,			.always = false },
+	{ .index = MSR_IA32_PL1_SSP,			.always = false },
+	{ .index = MSR_IA32_PL2_SSP,			.always = false },
+	{ .index = MSR_IA32_PL3_SSP,			.always = false },
+	{ .index = MSR_IA32_INT_SSP_TAB,		.always = false },
 	{ .index = MSR_INVALID,				.always = false },
 };
 
