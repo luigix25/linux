@@ -234,16 +234,25 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
 int vsock_listen_accept(unsigned int cid, unsigned int port,
 			struct sockaddr_vm *clientaddrp, int type)
 {
+	int fd, client_fd;
+
+	fd = vsock_listen(cid, port, type);
+
+	control_writeln("LISTENING");
+
+	client_fd = vsock_accept(fd, clientaddrp);
+	close(fd);
+	return client_fd;
+}
+
+int vsock_accept(int fd, struct sockaddr_vm *clientaddrp)
+{
 	union {
 		struct sockaddr sa;
 		struct sockaddr_vm svm;
 	} clientaddr;
 	socklen_t clientaddr_len = sizeof(clientaddr.svm);
-	int fd, client_fd, old_errno;
-
-	fd = vsock_listen(cid, port, type);
-
-	control_writeln("LISTENING");
+	int client_fd;
 
 	timeout_begin(TIMEOUT);
 	do {
@@ -252,12 +261,11 @@ int vsock_listen_accept(unsigned int cid, unsigned int port,
 	} while (client_fd < 0 && errno == EINTR);
 	timeout_end();
 
-	old_errno = errno;
-	close(fd);
-	errno = old_errno;
-
-	if (client_fd < 0)
-		return client_fd;
+	if (client_fd < 0) {
+		perror("accept");
+		close(fd);
+		exit(EXIT_FAILURE);
+	}
 
 	if (clientaddr_len != sizeof(clientaddr.svm)) {
 		fprintf(stderr, "unexpected addrlen from accept(2), %zu\n",

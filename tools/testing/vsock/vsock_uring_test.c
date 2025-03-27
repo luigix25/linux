@@ -121,10 +121,6 @@ static void vsock_io_uring_server(const struct test_opts *opts,
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	data_len = iovec_bytes(test_data->vecs, test_data->vecs_cnt);
 

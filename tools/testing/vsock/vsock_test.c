@@ -144,10 +144,6 @@ static void test_stream_client_close_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	/* Wait for the remote to close the connection, before check
 	 * -EPIPE error on send.
@@ -186,10 +182,6 @@ static void test_stream_server_close_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	send_byte(fd, 1, 0);
 	close(fd);
@@ -231,10 +223,6 @@ static void test_stream_multiconn_server(const struct test_opts *opts)
 
 	for (i = 0; i < MULTICONN_NFDS; i++) {
 		fds[i] = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-		if (fds[i] < 0) {
-			perror("accept");
-			exit(EXIT_FAILURE);
-		}
 	}
 
 	for (i = 0; i < MULTICONN_NFDS; i++) {
@@ -289,11 +277,6 @@ static void test_msg_peek_server(const struct test_opts *opts,
 		fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	else
 		fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	/* Peek from empty socket. */
 	recv_buf(fd, buf_peek, sizeof(buf_peek), MSG_PEEK | MSG_DONTWAIT,
@@ -426,10 +409,6 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
 	struct iovec iov = {0};
 
 	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	sock_buf_size = SOCK_BUF_SIZE;
 
@@ -512,10 +491,6 @@ static void test_seqpacket_msg_trunc_server(const struct test_opts *opts)
 	struct iovec iov = {0};
 
 	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	control_expectln("SENDDONE");
 	iov.iov_base = buf;
@@ -606,10 +581,6 @@ static void test_seqpacket_timeout_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	control_expectln("WAITDONE");
 	close(fd);
@@ -665,10 +636,6 @@ static void test_seqpacket_bigmsg_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	control_expectln("CLISENT");
 
@@ -726,10 +693,6 @@ static void test_seqpacket_invalid_rec_buffer_server(const struct test_opts *opt
 	int i;
 
 	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	/* Setup first buffer. */
 	broken_buf = mmap(NULL, buf_size, prot, flags, -1, 0);
@@ -802,10 +765,6 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
 	int i;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	/* Send 1 byte. */
 	send_byte(fd, 1, 0);
@@ -935,11 +894,6 @@ static void test_inv_buf_server(const struct test_opts *opts, bool stream)
 	else
 		fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
-
 	send_buf(fd, data, sizeof(data), 0, sizeof(data));
 
 	control_writeln("SENDDONE");
@@ -1006,11 +960,6 @@ static void test_stream_virtio_skb_merge_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
-
 	control_expectln("SEND0");
 
 	/* Read skbuff partially. */
@@ -1151,10 +1100,6 @@ static void test_stream_shutwr_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	control_expectln("CLIENTDONE");
 
@@ -1191,10 +1136,6 @@ static void test_stream_shutrd_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	if (shutdown(fd, SHUT_RD)) {
 		perror("shutdown");
@@ -1265,10 +1206,6 @@ static void test_unsent_bytes_server(const struct test_opts *opts, int type)
 	int client_fd;
 
 	client_fd = vsock_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
-	if (client_fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	recv_buf(client_fd, buf, sizeof(buf), 0, sizeof(buf));
 	control_writeln("RECEIVED");
@@ -1377,10 +1314,6 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
 
@@ -1559,10 +1492,6 @@ static void test_stream_msgzcopy_leak_errq_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	recv_byte(fd, 1, 0);
 	vsock_wait_remote_close(fd);
@@ -1707,10 +1636,6 @@ static void test_stream_msgzcopy_leak_zcskb_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	vsock_wait_remote_close(fd);
 	close(fd);
@@ -1802,10 +1727,6 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
 	control_expectln("LISTEN");
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	vsock_wait_remote_close(fd);
 	close(fd);
@@ -1830,10 +1751,6 @@ static void test_stream_linger_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	vsock_wait_remote_close(fd);
 	close(fd);

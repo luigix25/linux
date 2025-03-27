@@ -252,10 +252,6 @@ static void test_server(const struct test_opts *opts,
 	else
 		fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	data_len = iovec_bytes(test_data->vecs, test_data->vecs_cnt);
 
@@ -348,10 +344,6 @@ void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts)
 	int fd;
 
 	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	control_expectln("DONE");
 	close(fd);

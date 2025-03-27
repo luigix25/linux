@@ -406,10 +406,6 @@ static void test_connect_server(const struct test_opts *opts)
 	int client_fd;
 
 	client_fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-	if (client_fd < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
 
 	read_vsock_stat(&sockets);
 
