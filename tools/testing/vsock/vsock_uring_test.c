@@ -120,7 +120,7 @@ static void vsock_io_uring_server(const struct test_opts *opts,
 	void *data;
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);

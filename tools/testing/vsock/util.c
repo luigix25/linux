@@ -231,8 +231,8 @@ static int vsock_listen(unsigned int cid, unsigned int port, int type)
 /* Listen on <cid, port> and return the first incoming connection.  The remote
  * address is stored to clientaddrp.  clientaddrp may be NULL.
  */
-int vsock_accept(unsigned int cid, unsigned int port,
-		 struct sockaddr_vm *clientaddrp, int type)
+int vsock_listen_accept(unsigned int cid, unsigned int port,
+			struct sockaddr_vm *clientaddrp, int type)
 {
 	union {
 		struct sockaddr sa;
@@ -275,10 +275,10 @@ int vsock_accept(unsigned int cid, unsigned int port,
 	return client_fd;
 }
 
-int vsock_stream_accept(unsigned int cid, unsigned int port,
-			struct sockaddr_vm *clientaddrp)
+int vsock_stream_listen_accept(unsigned int cid, unsigned int port,
+			       struct sockaddr_vm *clientaddrp)
 {
-	return vsock_accept(cid, port, clientaddrp, SOCK_STREAM);
+	return vsock_listen_accept(cid, port, clientaddrp, SOCK_STREAM);
 }
 
 int vsock_stream_listen(unsigned int cid, unsigned int port)
@@ -286,10 +286,10 @@ int vsock_stream_listen(unsigned int cid, unsigned int port)
 	return vsock_listen(cid, port, SOCK_STREAM);
 }
 
-int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
-			   struct sockaddr_vm *clientaddrp)
+int vsock_seqpacket_listen_accept(unsigned int cid, unsigned int port,
+				  struct sockaddr_vm *clientaddrp)
 {
-	return vsock_accept(cid, port, clientaddrp, SOCK_SEQPACKET);
+	return vsock_listen_accept(cid, port, clientaddrp, SOCK_SEQPACKET);
 }
 
 /* Transmit bytes from a buffer and check the return value.

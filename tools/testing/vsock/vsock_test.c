@@ -143,7 +143,7 @@ static void test_stream_client_close_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -185,7 +185,7 @@ static void test_stream_server_close_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -230,7 +230,7 @@ static void test_stream_multiconn_server(const struct test_opts *opts)
 	int i;
 
 	for (i = 0; i < MULTICONN_NFDS; i++) {
-		fds[i] = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fds[i] = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 		if (fds[i] < 0) {
 			perror("accept");
 			exit(EXIT_FAILURE);
@@ -286,9 +286,9 @@ static void test_msg_peek_server(const struct test_opts *opts,
 	int fd;
 
 	if (seqpacket)
-		fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	else
-		fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 
 	if (fd < 0) {
 		perror("accept");
@@ -425,7 +425,7 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
 	struct msghdr msg = {0};
 	struct iovec iov = {0};
 
-	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -511,7 +511,7 @@ static void test_seqpacket_msg_trunc_server(const struct test_opts *opts)
 	struct msghdr msg = {0};
 	struct iovec iov = {0};
 
-	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -605,7 +605,7 @@ static void test_seqpacket_timeout_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -664,7 +664,7 @@ static void test_seqpacket_bigmsg_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -725,7 +725,7 @@ static void test_seqpacket_invalid_rec_buffer_server(const struct test_opts *opt
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	int i;
 
-	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -801,7 +801,7 @@ static void test_stream_poll_rcvlowat_server(const struct test_opts *opts)
 	int fd;
 	int i;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -931,9 +931,9 @@ static void test_inv_buf_server(const struct test_opts *opts, bool stream)
 	int fd;
 
 	if (stream)
-		fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	else
-		fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 
 	if (fd < 0) {
 		perror("accept");
@@ -1005,7 +1005,7 @@ static void test_stream_virtio_skb_merge_server(const struct test_opts *opts)
 	unsigned char buf[64];
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1150,7 +1150,7 @@ static void test_stream_shutwr_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1190,7 +1190,7 @@ static void test_stream_shutrd_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1264,7 +1264,7 @@ static void test_unsent_bytes_server(const struct test_opts *opts, int type)
 	unsigned char buf[MSG_BUF_IOCTL_LEN];
 	int client_fd;
 
-	client_fd = vsock_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
+	client_fd = vsock_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL, type);
 	if (client_fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1376,7 +1376,7 @@ static void test_stream_credit_update_test(const struct test_opts *opts,
 	void *buf;
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1558,7 +1558,7 @@ static void test_stream_msgzcopy_leak_errq_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1706,7 +1706,7 @@ static void test_stream_msgzcopy_leak_zcskb_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1801,7 +1801,7 @@ static void test_stream_connect_retry_server(const struct test_opts *opts)
 
 	control_expectln("LISTEN");
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1829,7 +1829,7 @@ static void test_stream_linger_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
@@ -1876,7 +1876,7 @@ static void test_stream_nolinger_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);

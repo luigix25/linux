@@ -248,9 +248,9 @@ static void test_server(const struct test_opts *opts,
 	int fd;
 
 	if (sock_seqpacket)
-		fd = vsock_seqpacket_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_seqpacket_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	else
-		fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+		fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 
 	if (fd < 0) {
 		perror("accept");
@@ -347,7 +347,7 @@ void test_stream_msgzcopy_empty_errq_server(const struct test_opts *opts)
 {
 	int fd;
 
-	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+	fd = vsock_stream_listen_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
 	if (fd < 0) {
 		perror("accept");
 		exit(EXIT_FAILURE);
